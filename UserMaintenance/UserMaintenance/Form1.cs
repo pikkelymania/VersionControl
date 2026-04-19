@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using UserMaintenance.Entities;
+using System.IO;
 
 namespace UserMaintenance
 {
@@ -23,6 +24,7 @@ namespace UserMaintenance
             // Feliratok beállítása a Resource fájlból
             label1.Text = Resource1.FullName;
             button1.Text = Resource1.Add;
+            button2.Text = Resource1.Save;
 
             // ListBox összekötése a listával
             listBox1.DataSource = users;
@@ -37,6 +39,25 @@ namespace UserMaintenance
                 FullName = textBox1.Text,
             };
             users.Add(u);
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog sfd = new SaveFileDialog();
+            sfd.Filter = "CSV fájlok (*.csv)|*.csv|Szöveges fájlok (*.txt)|*.txt";
+
+            if (sfd.ShowDialog() == DialogResult.OK)
+            {
+                // Fájlba írás a StreamWriter segítségével
+                using (StreamWriter sw = new StreamWriter(sfd.FileName))
+                {
+                    foreach (var user in users)
+                    {
+                        // Kiírjuk az ID-t és a FullName-et pontosvesszővel elválasztva
+                        sw.WriteLine($"{user.ID};{user.FullName}");
+                    }
+                }
+            }
         }
     }
 }
