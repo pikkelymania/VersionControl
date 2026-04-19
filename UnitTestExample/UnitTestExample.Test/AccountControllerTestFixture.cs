@@ -4,7 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using NUnit.Framework;
-using UnitTestExample.Controllers; // Behozzuk az eredeti projekt Controllerét
+using UnitTestExample.Controllers;
+using System.Activities;
 
 namespace UnitTestExample.Test
 {
@@ -35,6 +36,43 @@ namespace UnitTestExample.Test
 
             Assert.That(actualResult, Is.EqualTo(expectedResult));
         }
+
+        [TestCase("irf@uni-corvinus.hu", "Abcd1234")]
+        [TestCase("teszt@uni-corvinus.hu", "Xyz12345")]
+        public void TestRegisterHappyPath(string email, string password)
+        {
+            var accountController = new AccountController();
+
+            var actualResult = accountController.Register(email, password);
+
+            Assert.That(actualResult.Email, Is.EqualTo(email));
+            Assert.That(actualResult.Password, Is.EqualTo(password));
+
+            Assert.That(actualResult.ID, Is.Not.EqualTo(Guid.Empty));
+        }
+
+        [TestCase("irf@uni-corvinus", "Abcd1234")]
+        [TestCase("irf.uni-corvinus.hu", "Abcd1234")]
+        [TestCase("irf@uni-corvinus.hu", "abcd1234")]
+        [TestCase("irf@uni-corvinus.hu", "ABCD1234")]
+        [TestCase("irf@uni-corvinus.hu", "abcdABCD")]
+        [TestCase("irf@uni-corvinus.hu", "Ab1234")]
+        public void TestRegisterValidateException(string email, string password)
+        {
+            var accountController = new AccountController();
+
+            try
+            {
+                var actualResult = accountController.Register(email, password);
+
+                Assert.Fail("A program nem dobott hibát a rossz adatokra!");
+            }
+            catch (Exception ex)
+            {
+                Assert.That(ex, Is.InstanceOf<ValidationException>());
+            }
+        }
+
 
     }
 
